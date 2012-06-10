@@ -1,0 +1,21 @@
+firstpersonsoccer - a 7dfps project
+
+Authors:
+- fetthesten
+- Buggz
+
+---------------------------------------
+Abstract:
+
+An FPS game based on soccer/football. The player
+is a soccer player, and has to play several soccer 
+matches against numerous opponents. The base
+mechanic is to run around and fire soccer balls
+at enemies, with the goal being to kill and
+dismember them. Points are scored by lobbing 
+opponents' body parts into the opposition's goal.
+The player can also be attacked by the opposing
+players, and every time he is killed, the opposition
+scores points based on level of dismemberment. 
+The match ends when either side gets a preset amount
+of points (e.g., 20).
