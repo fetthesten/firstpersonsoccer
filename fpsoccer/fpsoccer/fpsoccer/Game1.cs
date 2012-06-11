@@ -12,6 +12,7 @@ using BEPUphysics.NarrowPhaseSystems.Pairs;
 using BEPUphysics.Entities.Prefabs;
 using BEPUphysics.Collidables.MobileCollidables;
 using BEPUphysics.Collidables;
+using fpsoccer.InputWrappers;
 
 namespace fpsoccer
 {
@@ -29,9 +30,9 @@ namespace fpsoccer
         public Model TestPitch;
 
         // keyboard/mouse controls
-        private KeyboardState _keyboardState;
-        private MouseState _mouseState;
-        private InvertOptions _invertOptions;
+        private readonly KeyboardWrapper _keyboard = new KeyboardWrapper();
+        private readonly MouseWrapper _mouse = new MouseWrapper();
+        private readonly InvertOptions _invertOptions = new InvertOptions();
 
         // camera control
         public Camera Camera;
@@ -47,8 +48,6 @@ namespace fpsoccer
             _graphics.PreferredBackBufferWidth = currentDisplayMode.Width;
             _graphics.PreferredBackBufferHeight = currentDisplayMode.Height;
             // graphics.ToggleFullScreen();
-
-            _invertOptions = new InvertOptions();
         }
 
         /// <summary>
@@ -198,15 +197,15 @@ namespace fpsoccer
         protected override void Update(GameTime gameTime)
         {
             // update keyboard and mouse state
-            _keyboardState = Keyboard.GetState();
-            _mouseState = Mouse.GetState();
+            _keyboard.Update();
+            _mouse.Update();
             
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || _keyboardState.IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || _keyboard.State.IsKeyDown(Keys.Escape))
                 this.Exit();
 
             // update camera
-            Camera.Update((float)gameTime.ElapsedGameTime.TotalSeconds, _keyboardState, _mouseState, _invertOptions);
+            Camera.Update((float)gameTime.ElapsedGameTime.TotalSeconds, _keyboard, _mouse);
 
             _space.Update();
 

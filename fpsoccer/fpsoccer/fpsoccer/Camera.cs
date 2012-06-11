@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using fpsoccer.Input;
+using fpsoccer.InputWrappers;
 
 namespace fpsoccer
 {
@@ -112,7 +114,7 @@ namespace fpsoccer
             Position += new Vector3(0, (dt * Speed), 0);
         }
 
-        public void Update(float gameTime, KeyboardState keyboardState, MouseState mouseState, InvertOptions invertOptions)
+        public void Update(float gameTime, KeyboardWrapper keyboard, MouseWrapper mouse)
         {
 #if XBOX360
             //Turn based on gamepad input.
@@ -120,8 +122,8 @@ namespace fpsoccer
             Pitch += Game.GamePadState.ThumbSticks.Right.Y * 1.5f * dt;
 #else
             //Turn based on mouse input.
-            Yaw += (200 - (mouseState.X * (invertOptions.InvertX ? -1 : 1))) * gameTime * .12f;
-            Pitch += (200 - (mouseState.Y * (invertOptions.InvertY ? -1 : 1))) * gameTime * .12f;
+            Yaw += (200 - (mouse.State.X * (keyboard.InvertOptions.InvertX ? -1 : 1))) * gameTime * .12f;
+            Pitch += (200 - (mouse.State.Y * (mouse.InvertOptions.InvertY ? -1 : 1))) * gameTime * .12f;
 #endif
             Mouse.SetPosition(200, 200);
 
@@ -140,13 +142,13 @@ namespace fpsoccer
 #else
 
             //Scoot the camera around depending on what keys are pressed.
-            if (keyboardState.IsKeyDown(Keys.W))
+            if (keyboard.State.IsKeyDown(KeyBindings.Up))
                 MoveForward(distance);
-            if (keyboardState.IsKeyDown(Keys.S))
+            if (keyboard.State.IsKeyDown(KeyBindings.Down))
                 MoveForward(-distance);
-            if (keyboardState.IsKeyDown(Keys.A))
+            if (keyboard.State.IsKeyDown(KeyBindings.Left))
                 MoveRight(-distance);
-            if (keyboardState.IsKeyDown(Keys.D))
+            if (keyboard.State.IsKeyDown(KeyBindings.Right))
                 MoveRight(distance);
 #endif
 
