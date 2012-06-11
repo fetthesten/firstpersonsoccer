@@ -18,34 +18,37 @@ namespace fpsoccer
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class fpsGame : Microsoft.Xna.Framework.Game
+    public class FpsGame : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        readonly GraphicsDeviceManager _graphics;
+        SpriteBatch _spriteBatch;
 
         // physics engine stuff
-        Space space;
-        public Model testModel;
-        public Model testPitch;
+        Space _space;
+        public Model TestModel;
+        public Model TestPitch;
 
         // keyboard/mouse controls
-        public KeyboardState keyboardState;
-        public MouseState mouseState;
+        private KeyboardState _keyboardState;
+        private MouseState _mouseState;
+        private InvertOptions _invertOptions;
 
         // camera control
-        public Camera camera;
+        public Camera Camera;
 
         // renderer
-        Effect effect;
+        Effect _effect;
 
-        public fpsGame()
+        public FpsGame()
         {
             DisplayMode currentDisplayMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
-            graphics = new GraphicsDeviceManager(this);
+            _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            graphics.PreferredBackBufferWidth = currentDisplayMode.Width;
-            graphics.PreferredBackBufferHeight = currentDisplayMode.Height;
+            _graphics.PreferredBackBufferWidth = currentDisplayMode.Width;
+            _graphics.PreferredBackBufferHeight = currentDisplayMode.Height;
             // graphics.ToggleFullScreen();
+
+            _invertOptions = new InvertOptions();
         }
 
         /// <summary>
@@ -56,7 +59,7 @@ namespace fpsoccer
         /// </summary>
         protected override void Initialize()
         {
-            camera = new Camera(this, new Vector3(0, -25.0f, 10.0f), 5.0f);
+            Camera = new Camera(this, new Vector3(0, -25.0f, 10.0f), 5.0f);
             Window.Title = "First Person Soccer";
 
             base.Initialize();
@@ -69,33 +72,33 @@ namespace fpsoccer
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // load models
-            testModel = Content.Load<Model>("mdl/football");
-            testPitch = Content.Load<Model>("mdl/pitch");
+            TestModel = Content.Load<Model>("mdl/football");
+            TestPitch = Content.Load<Model>("mdl/pitch");
 
             // initialise physics simulation space
-            space = new Space();
-            space.ForceUpdater.Gravity = new Vector3(0, -9.81f, 0);
+            _space = new Space();
+            _space.ForceUpdater.Gravity = new Vector3(0, -9.81f, 0);
             Vector3[] vertices;
             int[] indices;
 
-            TriangleMesh.GetVerticesAndIndicesFromModel(testPitch, out vertices, out indices);
+            TriangleMesh.GetVerticesAndIndicesFromModel(TestPitch, out vertices, out indices);
             var mesh = new StaticMesh(vertices, indices, new BEPUphysics.MathExtensions.AffineTransform(new Vector3(0, -40.0f, 0)));
-            space.Add(mesh);
-            Components.Add(new StaticModel(testPitch, mesh.WorldTransform.Matrix, this));
+            _space.Add(mesh);
+            Components.Add(new StaticModel(TestPitch, mesh.WorldTransform.Matrix, this));
 
-            space.Add(new Sphere(new Vector3(0, 4, 0), 1, 1));
+            _space.Add(new Sphere(new Vector3(0, 4, 0), 1, 1));
             
             // test; adding a few entities to space
-            foreach (Entity e in space.Entities)
+            foreach (Entity e in _space.Entities)
             {
                 Sphere sphere = e as Sphere;
                 if (sphere != null)
                 {
                     Matrix scaling = Matrix.CreateScale(sphere.Radius);
-                    EntityModel model = new EntityModel(e, testModel, scaling, this);
+                    EntityModel model = new EntityModel(e, TestModel, scaling, this);
                     Components.Add(model);
                     e.Tag = model;
                 }
@@ -172,7 +175,7 @@ namespace fpsoccer
             if (otherEntityInformation != null)
             {
                 // hit an entity, remove it
-                space.Remove(otherEntityInformation.Entity);
+                _space.Remove(otherEntityInformation.Entity);
                 // also remove graphics
                 Components.Remove((EntityModel)otherEntityInformation.Entity.Tag);
             }
@@ -195,17 +198,17 @@ namespace fpsoccer
         protected override void Update(GameTime gameTime)
         {
             // update keyboard and mouse state
-            keyboardState = Keyboard.GetState();
-            mouseState = Mouse.GetState();
+            _keyboardState = Keyboard.GetState();
+            _mouseState = Mouse.GetState();
             
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || _keyboardState.IsKeyDown(Keys.Escape))
                 this.Exit();
 
             // update camera
-            camera.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+            Camera.Update((float)gameTime.ElapsedGameTime.TotalSeconds, _keyboardState, _mouseState, _invertOptions);
 
-            space.Update();
+            _space.Update();
 
             base.Update(gameTime);
         }

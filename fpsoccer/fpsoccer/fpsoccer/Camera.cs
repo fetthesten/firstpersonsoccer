@@ -65,7 +65,7 @@ namespace fpsoccer
         /// <summary>
         /// Gets the game owning the camera.
         /// </summary>
-        public fpsGame Game { get; private set; }
+        public FpsGame Game { get; private set; }
 
         /// <summary>
         /// Constructs a new camera.
@@ -73,7 +73,7 @@ namespace fpsoccer
         /// <param name="game">Game that this camera belongs to.</param>
         /// <param name="position">Initial position of the camera.</param>
         /// <param name="speed">Initial movement speed of the camera.</param>
-        public Camera(fpsGame game, Vector3 position, float speed)
+        public Camera(FpsGame game, Vector3 position, float speed)
         {
             Game = game;
             Position = position;
@@ -112,11 +112,7 @@ namespace fpsoccer
             Position += new Vector3(0, (dt * Speed), 0);
         }
 
-        /// <summary>
-        /// Updates the camera's view matrix.
-        /// </summary>
-        /// <param name="dt">Timestep duration.</param>
-        public void Update(float dt)
+        public void Update(float gameTime, KeyboardState keyboardState, MouseState mouseState, InvertOptions invertOptions)
         {
 #if XBOX360
             //Turn based on gamepad input.
@@ -124,15 +120,15 @@ namespace fpsoccer
             Pitch += Game.GamePadState.ThumbSticks.Right.Y * 1.5f * dt;
 #else
             //Turn based on mouse input.
-            Yaw += (200 - Game.mouseState.X) * dt * .12f;
-            Pitch -= (200 - Game.mouseState.Y) * dt * .12f;
+            Yaw += (200 - (mouseState.X * (invertOptions.InvertX ? -1 : 1))) * gameTime * .12f;
+            Pitch += (200 - (mouseState.Y * (invertOptions.InvertY ? -1 : 1))) * gameTime * .12f;
 #endif
             Mouse.SetPosition(200, 200);
 
             WorldMatrix = Matrix.CreateFromAxisAngle(Vector3.Right, Pitch) * Matrix.CreateFromAxisAngle(Vector3.Up, Yaw);
 
 
-            float distance = Speed * dt;
+            float distance = Speed * gameTime;
 #if XBOX360
             //Move based on gamepad input.
                 MoveForward(Game.GamePadState.ThumbSticks.Left.Y * distance);
@@ -144,13 +140,13 @@ namespace fpsoccer
 #else
 
             //Scoot the camera around depending on what keys are pressed.
-            if (Game.keyboardState.IsKeyDown(Keys.W))
+            if (keyboardState.IsKeyDown(Keys.W))
                 MoveForward(distance);
-            if (Game.keyboardState.IsKeyDown(Keys.S))
+            if (keyboardState.IsKeyDown(Keys.S))
                 MoveForward(-distance);
-            if (Game.keyboardState.IsKeyDown(Keys.A))
+            if (keyboardState.IsKeyDown(Keys.A))
                 MoveRight(-distance);
-            if (Game.keyboardState.IsKeyDown(Keys.D))
+            if (keyboardState.IsKeyDown(Keys.D))
                 MoveRight(distance);
 #endif
 

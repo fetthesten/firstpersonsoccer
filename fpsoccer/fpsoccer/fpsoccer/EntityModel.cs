@@ -63,8 +63,8 @@ namespace fpsoccer
                 foreach (BasicEffect effect in mesh.Effects)
                 {
                     effect.World = boneTransforms[mesh.ParentBone.Index] * worldMatrix;
-                    effect.View = (Game as fpsGame).camera.ViewMatrix;
-                    effect.Projection = (Game as fpsGame).camera.ProjectionMatrix;
+                    effect.View = (Game as FpsGame).Camera.ViewMatrix;
+                    effect.Projection = (Game as FpsGame).Camera.ProjectionMatrix;
                 }
                 mesh.Draw();
             }

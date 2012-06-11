@@ -10,7 +10,7 @@ namespace fpsoccer
         /// </summary>
         static void Main(string[] args)
         {
-            using (fpsGame game = new fpsGame())
+            using (FpsGame game = new FpsGame())
             {
                 game.Run();
             }
