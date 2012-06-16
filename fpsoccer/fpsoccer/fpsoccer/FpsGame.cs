@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -12,7 +13,7 @@ using BEPUphysics.NarrowPhaseSystems.Pairs;
 using BEPUphysics.Entities.Prefabs;
 using BEPUphysics.Collidables.MobileCollidables;
 using BEPUphysics.Collidables;
-using fpsoccer.InputWrappers;
+using fpsoccer.GameEntities;
 
 namespace fpsoccer
 {
@@ -24,15 +25,14 @@ namespace fpsoccer
         readonly GraphicsDeviceManager _graphics;
         SpriteBatch _spriteBatch;
 
+        //Models
+        private Model _footballModel;
+
         // physics engine stuff
         Space _space;
-        public Model TestModel;
-        public Model TestPitch;
 
         // keyboard/mouse controls
-        private readonly KeyboardWrapper _keyboard = new KeyboardWrapper();
-        private readonly MouseWrapper _mouse = new MouseWrapper();
-        private readonly InvertOptions _invertOptions = new InvertOptions();
+        private Player _player;
 
         // camera control
         public Camera Camera;
@@ -58,7 +58,8 @@ namespace fpsoccer
         /// </summary>
         protected override void Initialize()
         {
-            Camera = new Camera(this, new Vector3(0, -25.0f, 10.0f), 5.0f);
+            _player = new Player();
+            Camera = new Camera(this, new Vector3(0, -25.0f, 10.0f), 7.0f);
             Window.Title = "First Person Soccer";
 
             base.Initialize();
@@ -74,34 +75,27 @@ namespace fpsoccer
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // load models
-            TestModel = Content.Load<Model>("mdl/football");
-            TestPitch = Content.Load<Model>("mdl/pitch");
+            _footballModel = Content.Load<Model>("mdl/football");
+            var pitchModel = Content.Load<Model>("mdl/pitch");
 
             // initialise physics simulation space
             _space = new Space();
             _space.ForceUpdater.Gravity = new Vector3(0, -9.81f, 0);
+
             Vector3[] vertices;
             int[] indices;
-
-            TriangleMesh.GetVerticesAndIndicesFromModel(TestPitch, out vertices, out indices);
+            TriangleMesh.GetVerticesAndIndicesFromModel(pitchModel, out vertices, out indices);
             var mesh = new StaticMesh(vertices, indices, new BEPUphysics.MathExtensions.AffineTransform(new Vector3(0, -40.0f, 0)));
             _space.Add(mesh);
-            Components.Add(new StaticModel(TestPitch, mesh.WorldTransform.Matrix, this));
+            Components.Add(new StaticModel(pitchModel, mesh.WorldTransform.Matrix, this));
 
-            _space.Add(new Sphere(new Vector3(0, 4, 0), 1, 1));
-            
-            // test; adding a few entities to space
-            foreach (Entity e in _space.Entities)
-            {
-                Sphere sphere = e as Sphere;
-                if (sphere != null)
-                {
-                    Matrix scaling = Matrix.CreateScale(sphere.Radius);
-                    EntityModel model = new EntityModel(e, TestModel, scaling, this);
-                    Components.Add(model);
-                    e.Tag = model;
-                }
-            }
+            var sphere = new Sphere(new Vector3(0, 4, 0), 1, 1);
+            _space.Add(sphere);
+
+            var scaling = Matrix.CreateScale(sphere.Radius);
+            var model = new EntityModel(sphere, _footballModel, scaling, this);
+            Components.Add(model);
+            //sphere.Tag = model;
         }
 
         /// <summary>
@@ -196,20 +190,31 @@ namespace fpsoccer
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // update keyboard and mouse state
-            _keyboard.Update();
-            _mouse.Update();
-            
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || _keyboard.State.IsKeyDown(Keys.Escape))
-                this.Exit();
+            _player.Update(gameTime);
+
+            if (_player.HasRequestedExit())
+                Exit();
+
+            if (_player.HasFiredShot())
+                ShootNewFootball();
 
             // update camera
-            Camera.Update((float)gameTime.ElapsedGameTime.TotalSeconds, _keyboard, _mouse);
+            Camera.Update((float)gameTime.ElapsedGameTime.TotalSeconds, _player.Keyboard, _player.Mouse);
 
             _space.Update();
 
             base.Update(gameTime);
+        }
+
+        private void ShootNewFootball()
+        {
+            var sphere = new Sphere(Camera.Position, 1, 1);
+            sphere.ApplyImpulse(sphere.Position, Camera.WorldMatrix.Forward * 100);
+            _space.Add(sphere);
+
+            var scaling = Matrix.CreateScale(sphere.Radius);
+            var model = new EntityModel(sphere, _footballModel, scaling, this);
+            Components.Add(model);
         }
 
         /// <summary>
