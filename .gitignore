@@ -7,7 +7,6 @@
 .metadata
 bin/
 tmp/
-obj/
 *.tmp
 *.bak
 *.swp
@@ -45,6 +44,7 @@ local.properties
 # Build results
 [Dd]ebug/
 [Rr]elease/
+obj/
 *_i.c
 *_p.c
 *.ilk
@@ -100,6 +100,8 @@ publish
 # Others
 [Bb]in
 [Oo]bj
+x86
+x64
 sql
 TestResults
 *.Cache
