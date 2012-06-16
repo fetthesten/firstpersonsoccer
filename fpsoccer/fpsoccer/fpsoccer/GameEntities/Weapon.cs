@@ -12,12 +12,12 @@ namespace fpsoccer.GameEntities
 
         public Weapon()
         {
-            ShotsPerSecond = 0.5f;
+            ShotsPerSecond = 1.0f;
         }
 
         public bool TryShoot(GameTime gameTime)
         {
-            var canShoot = gameTime.TotalGameTime - _timeLastShotFired > _timeLastShotFired;
+            var canShoot = gameTime.TotalGameTime - _timeLastShotFired > TimePerShot();
             if (canShoot)
             {
                 _timeLastShotFired = gameTime.TotalGameTime;
