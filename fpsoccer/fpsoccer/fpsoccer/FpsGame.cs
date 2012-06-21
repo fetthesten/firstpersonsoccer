@@ -38,7 +38,7 @@ namespace fpsoccer
         public Camera Camera;
 
         // renderer
-        Effect _effect;
+        //Effect _effect;
 
         public FpsGame()
         {
@@ -59,6 +59,7 @@ namespace fpsoccer
         protected override void Initialize()
         {
             _player = new Player();
+            _player.OnFiredShot += ShootNewFootball;
             Camera = new Camera(this, new Vector3(0, -25.0f, 10.0f), 7.0f);
             Window.Title = "First Person Soccer";
 
@@ -195,9 +196,6 @@ namespace fpsoccer
             if (_player.HasRequestedExit())
                 Exit();
 
-            if (_player.HasFiredShot())
-                ShootNewFootball();
-
             // update camera
             Camera.Update((float)gameTime.ElapsedGameTime.TotalSeconds, _player.Keyboard, _player.Mouse);
 
@@ -206,7 +204,7 @@ namespace fpsoccer
             base.Update(gameTime);
         }
 
-        private void ShootNewFootball()
+        private void ShootNewFootball(Player sender)
         {
             var sphere = new Sphere(Camera.Position, 1, 1);
             sphere.ApplyImpulse(sphere.Position, Camera.WorldMatrix.Forward * 100);

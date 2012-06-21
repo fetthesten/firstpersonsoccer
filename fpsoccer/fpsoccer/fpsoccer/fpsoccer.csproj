@@ -91,6 +91,7 @@
   <ItemGroup>
     <Compile Include="Camera.cs" />
     <Compile Include="EntityModel.cs" />
+    <Compile Include="Events\PlayerEvents.cs" />
     <Compile Include="FpsGame.cs" />
     <Compile Include="GameEntities\Bullet.cs" />
     <Compile Include="GameEntities\Player.cs" />

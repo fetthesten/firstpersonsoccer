@@ -1,5 +1,3 @@
-using System;
-
 namespace fpsoccer
 {
 #if WINDOWS || XBOX
@@ -10,7 +8,7 @@ namespace fpsoccer
         /// </summary>
         static void Main(string[] args)
         {
-            using (FpsGame game = new FpsGame())
+            using (var game = new FpsGame())
             {
                 game.Run();
             }
