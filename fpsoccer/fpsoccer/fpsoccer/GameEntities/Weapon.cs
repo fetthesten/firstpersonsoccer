@@ -12,7 +12,7 @@ namespace fpsoccer.GameEntities
 
         public Weapon()
         {
-            ShotsPerSecond = 1.0f;
+            ShotsPerSecond = 3.0f;
         }
 
         public bool TryShoot(GameTime gameTime)

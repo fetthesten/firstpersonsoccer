@@ -206,7 +206,9 @@ namespace fpsoccer
 
         private void ShootNewFootball(Player sender)
         {
-            var sphere = new Sphere(Camera.Position, 1, 1);
+            var origin = Camera.Position + new Vector3(0, -2.0f, 0);
+            var sphere = new Sphere(origin, 1, 1);
+            
             sphere.ApplyImpulse(sphere.Position, Camera.WorldMatrix.Forward * 100);
             _space.Add(sphere);
 
